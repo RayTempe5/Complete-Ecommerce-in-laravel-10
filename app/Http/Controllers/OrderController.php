@@ -110,10 +110,19 @@ class OrderController extends Controller
             // For COD: Link cart items and clear session immediately
             // For PayPal: Don't link cart items yet - wait for payment confirmation
             if ($validated['payment_method'] == 'cod') {
-                // Update cart items with order_id for COD
-                Cart::where('user_id', auth()->user()->id)
-                    ->where('order_id', null)
-                    ->update(['order_id' => $order->id]);
+    // Update cart items with order_id + simpan snapshot produk
+      $cartItems = Cart::where('user_id', auth()->user()->id)
+        ->where('order_id', null)
+        ->with('product')
+        ->get();
+
+    foreach ($cartItems as $cartItem) {
+        $cartItem->order_id      = $order->id;
+        $cartItem->product_title = $cartItem->product->title ?? null;
+        $cartItem->product_price = $cartItem->product->price ?? $cartItem->price;
+        $cartItem->product_photo = $cartItem->product->photo ?? null;
+        $cartItem->save();
+    }       
                 
                 // Clear session data for COD
                 session()->forget('cart');
