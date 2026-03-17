@@ -182,30 +182,16 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ⭐ **If you find this project helpful, don't forget to star it!** ⭐
 Implementation Notes
 
-Task 1 - Add order product list on order detail
-Added an ORDER PRODUCTS section to resources/views/user/order/show.blade.php that displays a table of all products in the order (photo, name, price, quantity, subtotal). Data is loaded via the existing cart_info relationship on the Order model.
+Task 1 - Tambah section ORDER PRODUCTS di order detail view, menampilkan foto, nama, harga, qty, dan subtotal tiap produk.
 
-Task 2 - Order detail should not change if product is edited/deleted
-Problem: The carts table only stored product_id with onDelete CASCADE. If a product was deleted, the cart row was also deleted. If edited, the order detail would reflect the new data.
-
-Solution: Added a product snapshot to the carts table:
-- Migration: added product_title, product_price, product_photo columns and changed foreign key to onDelete SET NULL
-- OrderController store: saves snapshot data when order is placed
-- Cart model: added snapshot columns to fillable
-- View: reads from snapshot columns instead of live product relation
+Task 2 - Tambah product snapshot (product_title, product_price, product_photo) ke tabel carts saat checkout. Foreign key diubah ke SET NULL agar cart tidak terhapus saat produk dihapus. View membaca dari snapshot, bukan dari tabel products langsung.
 
 Suggestions
 
-1. Authorization on order detail - Any logged-in user can access /user/order/show/id by guessing the ID. Add ownership check using Order where user_id and findOrFail.
-
-2. Database transactions - Checkout process should be wrapped in DB transaction to ensure atomicity.
-
-3. N+1 query problem - Several views load relationships inside loops. Use eager loading with with() in controllers.
-
-4. Form Request validation - Move validation logic into dedicated FormRequest classes for cleaner code.
-
-5. Order status email notification - Send email to user when order status changes.
-
-6. Test coverage - No tests exist. Add feature tests for checkout flow and order detail at minimum.
-
-7. Soft delete on products - Use SoftDeletes on the Product model so deleted products are still accessible for historical orders.
+1. Authorization - cek kepemilikan order sebelum ditampilkan
+2. DB Transaction - proses checkout harus atomic
+3. N+1 Query - gunakan eager loading di controller
+4. Form Request - pisahkan validasi dari controller
+5. Email notifikasi - kirim email saat status order berubah
+6. Test coverage - belum ada test sama sekali
+7. Soft delete - produk dihapus tetap bisa diakses untuk order lama
