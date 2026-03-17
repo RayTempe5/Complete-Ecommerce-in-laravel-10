@@ -195,3 +195,10 @@ Suggestions
 5. Email notifikasi - kirim email saat status order berubah
 6. Test coverage - belum ada test sama sekali
 7. Soft delete - produk dihapus tetap bisa diakses untuk order lama
+## Screenshots
+
+**Before:**
+![Before](screenshots/before.png)
+
+**After:**
+![After](screenshots/after.png)
