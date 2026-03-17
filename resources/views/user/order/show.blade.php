@@ -4,7 +4,7 @@
 
 @section('main-content')
 <div class="card">
-<h5 class="card-header">Order       <a href="{{route('order.pdf',$order->id)}}" class=" btn btn-sm btn-primary shadow-sm float-right"><i class="fas fa-download fa-sm text-white-50"></i> Generate PDF</a>
+<h5 class="card-header">Order <a href="{{route('order.pdf',$order->id)}}" class="btn btn-sm btn-primary shadow-sm float-right"><i class="fas fa-download fa-sm text-white-50"></i> Generate PDF</a>
   </h5>
   <div class="card-body">
     @if($order)
@@ -29,7 +29,7 @@
             <td>{{$order->first_name}} {{$order->last_name}}</td>
             <td>{{$order->email}}</td>
             <td>{{$order->quantity}}</td>
-            <td>${{$order->shipping->price}}</td>
+            <td>${{$order->shipping->price ?? 0}}</td>
             <td>${{number_format($order->total_amount,2)}}</td>
             <td>
                 @if($order->status=='new')
@@ -49,7 +49,6 @@
                       <button class="btn btn-danger btn-sm dltBtn" data-id={{$order->id}} style="height:30px; width:30px;border-radius:50%" data-toggle="tooltip" data-placement="bottom" title="Delete"><i class="fas fa-trash-alt"></i></button>
                 </form>
             </td>
-
         </tr>
       </tbody>
     </table>
@@ -61,7 +60,7 @@
             <div class="order-info">
               <h4 class="text-center pb-4">ORDER INFORMATION</h4>
               <table class="table">
-                    <tr class="">
+                    <tr>
                         <td>Order Number</td>
                         <td> : {{$order->order_number}}</td>
                     </tr>
@@ -78,15 +77,12 @@
                         <td> : {{$order->status}}</td>
                     </tr>
                     <tr>
-                      @php
-                          $shipping_charge=DB::table('shippings')->where('id',$order->shipping_id)->pluck('price');
-                      @endphp
                         <td>Shipping Charge</td>
-                        <td> :${{$order->shipping->price}}</td>
+                        <td> : ${{$order->shipping->price ?? 0}}</td>
                     </tr>
                     <tr>
                         <td>Total Amount</td>
-                        <td> : $ {{number_format($order->total_amount,2)}}</td>
+                        <td> : ${{number_format($order->total_amount,2)}}</td>
                     </tr>
                     <tr>
                       <td>Payment Method</td>
@@ -104,7 +100,7 @@
             <div class="shipping-info">
               <h4 class="text-center pb-4">SHIPPING INFORMATION</h4>
               <table class="table">
-                    <tr class="">
+                    <tr>
                         <td>Full Name</td>
                         <td> : {{$order->first_name}} {{$order->last_name}}</td>
                     </tr>
@@ -132,6 +128,44 @@
             </div>
           </div>
         </div>
+
+        {{-- ORDER PRODUCTS --}}
+        <div class="row mt-4">
+          <div class="col-lg-12">
+            <div class="order-info">
+              <h4 class="text-center pb-4">ORDER PRODUCTS</h4>
+              <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th>Photo</th>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Subtotal</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @foreach($order->cart_info as $item)
+                  <tr>
+                    <td>
+                      @if($item->product_photo)
+                        <img src="{{asset($item->product_photo)}}" style="width:60px;height:60px;object-fit:cover;">
+                      @else
+                        <span class="text-muted">No image</span>
+                      @endif
+                    </td>
+                    <td>{{$item->product_title ?? 'Product unavailable'}}</td>
+                    <td>${{number_format($item->product_price ?? $item->price, 2)}}</td>
+                    <td>{{$item->quantity}}</td>
+                    <td>${{number_format(($item->product_price ?? $item->price) * $item->quantity, 2)}}</td>
+                  </tr>
+                  @endforeach
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
       </div>
     </section>
     @endif
@@ -149,6 +183,5 @@
     .order-info h4,.shipping-info h4{
         text-decoration: underline;
     }
-
 </style>
 @endpush
